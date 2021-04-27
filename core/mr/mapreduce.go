@@ -107,13 +107,17 @@ func MapReduce(generate GenerateFunc, mapper MapperFunc, reducer ReducerFunc, op
 	return MapReduceWithSource(source, mapper, reducer, opts...)
 }
 
+// TODO 实现了MapReduce思想
 // MapReduceWithSource maps all elements from source, and reduce the output elements with given reducer.
 func MapReduceWithSource(source <-chan interface{}, mapper MapperFunc, reducer ReducerFunc,
 	opts ...Option) (interface{}, error) {
+	// TODO 支持默认参数？
 	options := buildOptions(opts...)
 	output := make(chan interface{})
 	collector := make(chan interface{}, options.workers)
+	// TODO 用于保证只关闭一次
 	done := syncx.NewDoneChan()
+	// TODO 构建通道writer
 	writer := newGuardedWriter(output, done.Done())
 	var closeOnce sync.Once
 	var retErr errorx.AtomicError
@@ -202,6 +206,7 @@ func buildOptions(opts ...Option) *mapReduceOptions {
 
 func buildSource(generate GenerateFunc) chan interface{} {
 	source := make(chan interface{})
+	// TODO 可以捕获panic的协程安全调用
 	threading.GoSafe(func() {
 		defer close(source)
 		generate(source)
@@ -258,6 +263,7 @@ func newOptions() *mapReduceOptions {
 	}
 }
 
+// TODO 值得学习的优先设计
 func once(fn func(error)) func(error) {
 	once := new(sync.Once)
 	return func(err error) {

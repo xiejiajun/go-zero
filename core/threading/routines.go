@@ -8,6 +8,7 @@ import (
 	"github.com/tal-tech/go-zero/core/rescue"
 )
 
+// TODO 值得学习的优先设计
 // GoSafe runs the given fn using another goroutine, recovers if fn panics.
 func GoSafe(fn func()) {
 	go RunSafe(fn)
@@ -27,6 +28,7 @@ func RoutineId() uint64 {
 
 // RunSafe runs the given fn, recovers if fn panics.
 func RunSafe(fn func()) {
+	// TODO 调用recover()恢复panic
 	defer rescue.Recover()
 
 	fn()
