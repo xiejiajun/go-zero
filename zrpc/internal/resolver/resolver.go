@@ -28,6 +28,7 @@ var (
 // RegisterResolver registers the direct and discov schemes to the resolver.
 func RegisterResolver() {
 	resolver.Register(&dirBuilder)
+	// TODO 注册gRpc resolver Builder实现
 	resolver.Register(&disBuilder)
 }
 

@@ -37,6 +37,7 @@ func GetRegistry() *Registry {
 
 // GetConn returns an etcd client connection associated with given endpoints.
 func (r *Registry) GetConn(endpoints []string) (EtcdClient, error) {
+	// TODO 获取可以动态监听etcd上的服务变动信息的客户端
 	return r.getCluster(endpoints).getClient()
 }
 
@@ -85,6 +86,7 @@ func (c *cluster) context(cli EtcdClient) context.Context {
 
 func (c *cluster) getClient() (EtcdClient, error) {
 	val, err := connManager.GetResource(c.key, func() (io.Closer, error) {
+		// TODO 获取客户端
 		return c.newClient()
 	})
 	if err != nil {
@@ -186,6 +188,7 @@ func (c *cluster) load(cli EtcdClient, key string) {
 	for {
 		var err error
 		ctx, cancel := context.WithTimeout(c.context(cli), RequestTimeout)
+		// TODO 根据服务key获取etcd上注册的服务信息(host:port), 自旋重试保证调用成功
 		resp, err = cli.Get(ctx, makeKeyPrefix(key), clientv3.WithPrefix())
 		cancel()
 		if err == nil {
@@ -196,6 +199,7 @@ func (c *cluster) load(cli EtcdClient, key string) {
 		time.Sleep(coolDownInterval)
 	}
 
+	// TODO 同一个key对应的服务可能有多个副本，所以使用KV切片存储该服务的所有地址信息
 	var kvs []KV
 	c.lock.Lock()
 	for _, ev := range resp.Kvs {
@@ -206,6 +210,7 @@ func (c *cluster) load(cli EtcdClient, key string) {
 	}
 	c.lock.Unlock()
 
+	// TODO 通过拉取到的etcd上注册的服务改变信息，修正本地缓存的服务配置信息
 	c.handleChanges(key, kvs)
 }
 
@@ -219,6 +224,7 @@ func (c *cluster) monitor(key string, l UpdateListener) error {
 		return err
 	}
 
+	// TODO 拉取服务注册信息并更新本地服务映射缓存
 	c.load(cli, key)
 	c.watchGroup.Run(func() {
 		c.watch(cli, key)
@@ -233,6 +239,7 @@ func (c *cluster) newClient() (EtcdClient, error) {
 		return nil, err
 	}
 
+	// TODO 开启服务信息监听协程，实时更新gRpc服务信息
 	go c.watchConnState(cli)
 
 	return cli, nil
@@ -253,7 +260,9 @@ func (c *cluster) reload(cli EtcdClient) {
 	for _, key := range keys {
 		k := key
 		c.watchGroup.Run(func() {
+			// TODO 拉取服务注册信息并更新本地服务映射缓存
 			c.load(cli, k)
+			// TODO 监听etcd事件，方便第一时间监听服务注册信息的改变
 			c.watch(cli, k)
 		})
 	}
@@ -277,6 +286,7 @@ func (c *cluster) watch(cli EtcdClient, key string) {
 				return
 			}
 
+			// TODO 处理etcd事件
 			c.handleWatchEvents(key, wresp.Events)
 		case <-c.done:
 			return
@@ -286,6 +296,7 @@ func (c *cluster) watch(cli EtcdClient, key string) {
 
 func (c *cluster) watchConnState(cli EtcdClient) {
 	watcher := newStateWatcher()
+	// TODO 监听etcd事件 实时更新服务注册信息缓存
 	watcher.addListener(func() {
 		go c.reload(cli)
 	})
@@ -294,6 +305,7 @@ func (c *cluster) watchConnState(cli EtcdClient) {
 
 // DialClient dials an etcd cluster with given endpoints.
 func DialClient(endpoints []string) (EtcdClient, error) {
+	// TODO 构建Etcd客户端
 	return clientv3.New(clientv3.Config{
 		Endpoints:            endpoints,
 		AutoSyncInterval:     autoSyncInterval,

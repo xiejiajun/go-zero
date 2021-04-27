@@ -15,7 +15,9 @@ const (
 
 // NewRpcPubServer returns a Server.
 func NewRpcPubServer(etcdEndpoints []string, etcdKey, listenOn string, opts ...ServerOption) (Server, error) {
+	// TODO discov/KeepAlive
 	registerEtcd := func() error {
+		// TODO 将要注册到Etcd的服务信息(host:port)
 		pubListenOn := figureOutListenOn(listenOn)
 		pubClient := discov.NewPublisher(etcdEndpoints, etcdKey, pubListenOn)
 		return pubClient.KeepAlive()
@@ -34,10 +36,14 @@ type keepAliveServer struct {
 }
 
 func (ags keepAliveServer) Start(fn RegisterFn) error {
+	// TODO ags.registerEtcd()触发服务注册到etcd
 	if err := ags.registerEtcd(); err != nil {
 		return err
 	}
 
+	// TODO rpcServer.Start启动gRpc Server
+	//  传入的RegisterFn参数用于将用户通过protobuf定义生成的gRpc服务描述信息注册到将要启动的gRpc Server
+	//  好让gRpc Server能调用这些服务的实现处理调用方的请求
 	return ags.Server.Start(fn)
 }
 

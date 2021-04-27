@@ -33,6 +33,7 @@ type (
 
 // MustNewClient returns a Client, exits on any error.
 func MustNewClient(c RpcClientConf, options ...ClientOption) Client {
+	// TODO 创建客户端
 	cli, err := NewClient(c, options...)
 	if err != nil {
 		log.Fatal(err)
@@ -58,8 +59,10 @@ func NewClient(c RpcClientConf, options ...ClientOption) (Client, error) {
 	var client Client
 	var err error
 	if len(c.Endpoints) > 0 {
+		// TODO 直连gRpc接口方式的rpc调用客户端创建
 		client, err = internal.NewClient(internal.BuildDirectTarget(c.Endpoints), opts...)
 	} else if err = c.Etcd.Validate(); err == nil {
+		// TODO 使用Etcd作为服务注册中心的Rpc客户端创建
 		client, err = internal.NewClient(internal.BuildDiscovTarget(c.Etcd.Hosts, c.Etcd.Key), opts...)
 	}
 	if err != nil {

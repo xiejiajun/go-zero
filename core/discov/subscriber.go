@@ -62,6 +62,7 @@ func Exclusive() SubOption {
 
 type container struct {
 	exclusive bool
+	// TODO 用于缓存服务信息
 	values    map[string][]string
 	mapping   map[string]string
 	snapshot  atomic.Value

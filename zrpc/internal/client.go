@@ -19,6 +19,7 @@ const (
 )
 
 func init() {
+	// TODO 注册gRpc resolver Builder实现，用于从etcd拉取注册的服务信息
 	resolver.RegisterResolver()
 }
 
@@ -46,6 +47,7 @@ type (
 func NewClient(target string, opts ...ClientOption) (Client, error) {
 	var cli client
 	opts = append([]ClientOption{WithDialOption(grpc.WithBalancerName(p2c.Name))}, opts...)
+	// TODO 创建grpc conn
 	if err := cli.dial(target, opts...); err != nil {
 		return nil, err
 	}
@@ -82,6 +84,8 @@ func (c *client) dial(server string, opts ...ClientOption) error {
 	options := c.buildDialOptions(opts...)
 	timeCtx, cancel := context.WithTimeout(context.Background(), dialTimeout)
 	defer cancel()
+	// TODO 创建gRpc连接信息，这里会调用实现了gRpc resolver Builder接口的discovBuilder从etcd上
+	//   获取到接口对应的gRpc 服务地址
 	conn, err := grpc.DialContext(timeCtx, server, options...)
 	if err != nil {
 		service := server

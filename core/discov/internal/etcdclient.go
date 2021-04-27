@@ -10,6 +10,7 @@ import (
 )
 
 // EtcdClient interface represents an etcd client.
+// TODO 真正使用时是通过clientv3.New构建的*clientv3.Client
 type EtcdClient interface {
 	ActiveConnection() *grpc.ClientConn
 	Close() error

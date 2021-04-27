@@ -56,6 +56,7 @@ func (p *Publisher) KeepAlive() error {
 		return err
 	}
 
+	// TODO cli封装了etcd客户端，这里通过etcd客户端进行服务注册
 	p.lease, err = p.register(cli)
 	if err != nil {
 		return err
@@ -91,6 +92,7 @@ func (p *Publisher) keepAliveAsync(cli internal.EtcdClient) error {
 
 	threading.GoSafe(func() {
 		for {
+			// TODO 通过自旋递归调用KeepAlive保证KeepAlive
 			select {
 			case _, ok := <-ch:
 				if !ok {
@@ -134,6 +136,7 @@ func (p *Publisher) register(client internal.EtcdClient) (clientv3.LeaseID, erro
 	} else {
 		p.fullKey = makeEtcdKey(p.key, int64(lease))
 	}
+	// TODO p.fullKey为注册到ETCD的服务的key
 	_, err = client.Put(client.Ctx(), p.fullKey, p.value, clientv3.WithLease(lease))
 
 	return lease, err

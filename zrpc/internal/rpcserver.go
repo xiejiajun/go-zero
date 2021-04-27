@@ -47,6 +47,7 @@ func (s *rpcServer) SetName(name string) {
 	s.baseRpcServer.SetName(name)
 }
 
+// TODO 启动grpc Server
 func (s *rpcServer) Start(register RegisterFn) error {
 	lis, err := net.Listen("tcp", s.address)
 	if err != nil {
@@ -67,6 +68,8 @@ func (s *rpcServer) Start(register RegisterFn) error {
 	options := append(s.options, WithUnaryServerInterceptors(unaryInterceptors...),
 		WithStreamServerInterceptors(streamInterceptors...))
 	server := grpc.NewServer(options...)
+	// TODO register回调函数用于将用户通过protobuf定义生成的gRpc服务描述信息注册到将要启动的gRpc Server
+	//  好让gRpc Server能调用这些服务的实现处理调用方的请求
 	register(server)
 	// we need to make sure all others are wrapped up
 	// so we do graceful stop at shutdown phase instead of wrap up phase
