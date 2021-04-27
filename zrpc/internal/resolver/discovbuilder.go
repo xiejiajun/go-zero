@@ -30,7 +30,7 @@ func (d *discovBuilder) Build(target resolver.Target, cc resolver.ClientConn, op
 			})
 		}
 		cc.UpdateState(resolver.State{
-			// TODO 更新gRpc地址信息
+			// TODO 更新gRpc地址信息（所有接口的地址列表)
 			Addresses: addrs,
 		})
 	}

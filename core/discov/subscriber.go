@@ -104,7 +104,9 @@ func (c *container) addKv(key, value string) ([]string, bool) {
 			c.doRemoveKey(each)
 		}
 	}
+	// TODO 保存 host:port -> 服务key列表的映射关系
 	c.values[value] = append(c.values[value], key)
+	// TODO 保存 服务key -> 服务地址host:vale的映射关系
 	c.mapping[key] = value
 
 	if early {
