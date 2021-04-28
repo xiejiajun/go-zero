@@ -76,6 +76,7 @@ func (s *rpcServer) Start(register RegisterFn) error {
 	waitForCalled := proc.AddWrapUpListener(func() {
 		server.GracefulStop()
 	})
+	// TODO 等待外部信号触发Listener回调，从而触发WaitGroup的done方法调用，然后退出服务
 	defer waitForCalled()
 
 	return server.Serve(lis)
